@@ -129,6 +129,7 @@ func handle(mobile string) {
 	defer cancel()
 	ctx, cancel = chromedp.NewContext(ctx)
 	defer cancel()
+
 	ctx, cancel = context.WithTimeout(ctx, 3*time.Minute)
 	defer cancel()
 	var btnText string
@@ -163,11 +164,15 @@ func handle(mobile string) {
 		chMsg <- msg
 		return
 	}
-	var checked string
-	var ok bool
-	chromedp.Run(ctx, chromedp.AttributeValue(".policy_tip-checkbox", "checked", &checked, &ok, chromedp.ByQuery))
+	var checked bool
+	//获取不到值 换种方式
+	// var ok bool
+	// chromedp.Run(ctx, chromedp.AttributeValue("document.querySelector('.policy_tip-checkbox')", "checked", &checked, &ok, chromedp.ByJSPath))
+
+	chromedp.Run(ctx, chromedp.EvaluateAsDevTools("document.querySelector('.policy_tip-checkbox').checked", &checked))
+
 	log.Println("协议", checked)
-	if checked != "true" {
+	if !checked {
 		chromedp.Run(ctx, chromedp.Click("document.querySelector('.policy_tip-checkbox')", chromedp.ByJSPath))
 	}
 	chMsg <- msg
@@ -181,11 +186,6 @@ func handle(mobile string) {
 		// 	log.Println("time out")
 		// 	return
 		case code := <-ch:
-			var buf1 []byte
-			chromedp.Run(ctx, chromedp.CaptureScreenshot(&buf1))
-			if err := ioutil.WriteFile("fullScreenshot1.png", buf1, 0644); err != nil {
-				log.Fatal(err)
-			}
 			err := chromedp.Run(ctx, sendKeys("#authcode", code), chromedp.Click("document.querySelector('.btn')", chromedp.ByJSPath), chromedp.Sleep(time.Second*2))
 			if err != nil {
 				msg.Code = 999
