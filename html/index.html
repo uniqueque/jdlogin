@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>京东登录</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
+
+<body>
+    <div class='login'>
+        <div class="login-panel">
+            <div class="login-title">
+                <h2>登陆</h2>
+            </div>
+            <div class="login-container">
+                <input type="number" id="mobile" class="input" placeholder="请输入手机号" />
+            </div>
+            <div class="login-container">
+                <div class="login-validation">
+                    <input type="number" id="code" class="input validation-input" placeholder="请输入验证码" />
+                    <input type="button" value="发送验证码" onclick="sendSms()" class="btn-send" />
+                    <!-- <img class="validation-img" src="../img/captcha.png" title="看不清楚？点击换一张"> -->
+                </div>
+            </div>
+            <br />
+            <br />
+            <div class="login-container">
+                <input type="button" value="立即登录" onclick="submit()" class="btn-login" />
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    var reg = /^1\d{10}$/;
+    function sendSms() {
+        if (!!this.t) {
+            alert("已发送验证码，若要重新发送，请刷新页面");
+            return
+        }
+        let mobile = document.getElementById('mobile').value;
+        if (!reg.test(mobile)) {
+            alert('请输入正确的手机号码');
+        } else {
+            if (this.clicked) {
+                alert('你已经点击过了，正在执行中');
+                return
+            }
+            this.clicked = true;
+
+            ajax({
+                url: '/sendsms?mobile=' + mobile,
+                method: 'get',
+                success: function (data) {
+                    this.clicked = false;
+                    if (data.code == 0) {
+                        this.t = data.t
+                        alert('发送成功');
+                    } else {
+                        alert('验证码发送失败，' + data.msg);
+                    }
+                }
+            })
+        }
+    }
+    function submit() {
+        if (!this.t) {
+            alert("请先发送验证码");
+            return
+        }
+        let code = document.getElementById('code').value;
+        if (!code) {
+            alert("请输入验证码");
+            return
+        }
+        if (this.clicked) {
+            alert('你已经点击过了，正在执行中');
+            return
+        }
+        this.clicked = true;
+        ajax({
+            url: '/submit?code=' + code + '&t=' + this.t,
+            method: 'get',
+            success: function (data) {
+                this.clicked = false;
+                if (data.code == 0) {
+                    this.t =undefined
+                    alert('登录成功');
+                } else {
+                    alert('登录失败' + data.msg + ",请刷新页面重试");
+                }
+            }
+        })
+    }
+    function ajax(options) {
+        var url = options.url;
+        var method = options.method;
+        var data = options.data;
+        var success = options.success;
+        var ajax = new XMLHttpRequest();
+        ajax.open(method, url);
+        if (method == 'post') {
+            ajax.setRequestHeader('Content-type', 'application/json');
+        }
+        ajax.send(JSON.stringify(data));
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState == 4 && ajax.status == 200) {
+                success(JSON.parse(ajax.responseText));
+            }
+        };
+    }
+</script>
+<style type="text/css">
+    * {
+        padding: 0;
+        margin: 0;
+        font-family: "微软雅黑";
+    }
+
+    .login {
+        position: absolute;
+        right: 0px;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+        background-color: #E6E6E6;
+        z-index: 100;
+    }
+
+    .login .login-panel {
+        height: 360px;
+        position: absolute;
+        margin: auto;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+    }
+
+    .login .login-title {
+        text-align: center;
+        color: #62a8ea;
+    }
+
+    .login .login-title h2 {
+        letter-spacing: 10px;
+    }
+
+    .login-container {
+        width: 100%;
+        box-sizing: border-box;
+        width: 100%;
+        margin: 20px 0 0;
+        text-align: center;
+    }
+
+    .login .input {
+        border: 1px solid white;
+        display: inline-block;
+        box-sizing: border-box;
+        width: 80%;
+        height: 46px;
+        padding-left: 10px;
+        margin: 0 auto;
+        font-size: 14px;
+        outline: none;
+        color: #76838f;
+    }
+
+    .login .login-validation {
+        width: 80%;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .login .validation-input {
+        position: absolute;
+        width: 250px;
+        left: 0px;
+    }
+
+    .login .btn-send {
+        position: absolute;
+        background-color: #62a8ea;
+        border: none;
+        width: 125px;
+        height: 47px;
+        line-height: 47px;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        right: 0px;
+    }
+
+    .login .input:focus {
+        outline: none;
+        border: 1px solid #62a8ea;
+    }
+
+    .login .btn-login {
+        background-color: #62a8ea;
+        border: none;
+        width: 80%;
+        height: 45px;
+        line-height: 45px;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+    }
+</style>
+
+</html>
