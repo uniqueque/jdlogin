@@ -1,8 +1,23 @@
+
+### 新增了滑块验证,轨迹算法不太好。成功不成功看脸
+
+### 安装 谷歌浏览器驱动
+
+### 安装golang
+
+### 运行
 ```
-docker pull chromedp/headless-shell:latest
-
-docker run -d -p 9222:9222 --rm --name headless-shell chromedp/headless-shell
-
 go run main.go
 ```
-## 教程不写了
+
+## 自己搭建滑块位置计算
+
+### 安装opencv4
+
+### 安装golang
+
+### 运行
+
+```
+go run opencv/main.go
+```

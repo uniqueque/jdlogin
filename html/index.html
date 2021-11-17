@@ -48,7 +48,7 @@
                 return
             }
             this.clicked = true;
-
+            alert("验证码发送中，请耐心等待");
             ajax({
                 url: '/sendsms?mobile=' + mobile,
                 method: 'get',

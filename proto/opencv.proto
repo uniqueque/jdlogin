@@ -1,0 +1,24 @@
+//指定proto版本
+syntax = "proto3";
+
+//指定包名
+package proto;
+option go_package = "./proto";
+
+
+//定义服务
+service OpenCV {
+    //定义方法
+    rpc GetDistance (Request) returns (Response);
+}
+
+//Request 请求结构
+message Request {
+	string cpc_img = 1;
+	string small_img = 2;
+}
+
+//Response 响应结构
+message Response {
+    int64 distance = 1;
+}
